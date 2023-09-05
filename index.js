@@ -11,11 +11,17 @@ import cities from './data/cities.mjs';
 import getABnBs from "./src/getABnBs.mjs";
 ///////////////////////////////////////////////////////////////////////////////
 
-const { prompt, AutoComplete, Toggle, MultiSelect } = enquirer;
+const { AutoComplete, StringPrompt, Toggle, MultiSelect } = enquirer;
 
-const acPrompt = async (msg, arr) => {
-  const daPrompt = new AutoComplete({ message: msg, limit: 10, choices: arr });
-  return await daPrompt.run().then(res => res).catch(console.error);
+const acPrompt = async (message, choices, init) => {
+  const initial = init ? init.indexOf(init) : null;
+  const prompt = new AutoComplete({ message, choices, initial, limit: 10 });
+  return await prompt.run().then(res => res).catch(console.error);
+}
+
+const strPrompt = async message => {
+  const prompt = new StringPrompt({ message });
+  return await prompt.run().then(res => res).catch(console.error);
 }
 
 
@@ -25,15 +31,11 @@ const acPrompt = async (msg, arr) => {
  
 // location - country /////////////////////////////////////////////////////////
 const countriesArr = countries.map(({ name }) => name);
-const countryPrompt = new AutoComplete({
-  message: 'Pick country (press Enter for default ("United States")',
-  limit: 10,
-  initial: 230,
-  choices: countriesArr,
-});
-const country = await countryPrompt.run()
-  .then(country => country)
-  .catch(console.error);
+const country = await acPrompt(
+  'Pick country (press Enter for default ("United States")',
+  countriesArr,
+  'United States',
+);
 
 // location - usState /////////////////////////////////////////////////////////
 const usStatesArr = usStates.map(({ name }) => name).sort();
@@ -50,14 +52,7 @@ const citiesArr = cities
 const city = await acPrompt(`Pick a city in ${country}`, citiesArr);
 
 // location - neighborhood ////////////////////////////////////////////////////
-const neighborhoodAns = await prompt({ // StringPrompt?
-  name: 'neighborhood',
-  type: 'input',
-  message: 'Pick a neighborhood (optional)',
-});
-const neighborhood = neighborhoodAns.neighborhood
-  ?`${neighborhoodAns.neighborhood}--`
-  : '';
+const neighborhood = await strPrompt('Enter a neighborhood (OPTIONAL)');
 
 // location  //////////////////////////////////////////////////////////////////
 const location = `${neighborhood}${city}--${usState}${country}`
@@ -161,21 +156,11 @@ const amenities = await amenitiesPrompt.run()
 ///////////////////////////////////////////////////////////////////////////////
 
 console.log();
-const priceMinAns = await prompt({ /// StringPrompt or NumberPrompt toString()?
-  message: 'Minimum Price',
-  type: 'input',
-  name: 'priceMin',
-});
-const priceMin = priceMinAns.priceMin || null;
-
-const priceMaxAns = await prompt({ // StringPrompt or NumberPrompt toString()?
-  message: 'Maximum Price',
-  type: 'input',
-  name: 'priceMax',
-});
-const priceMax = priceMaxAns.priceMax || null;
+const priceMin = await strPrompt('Minimum price');
+const priceMax = await strPrompt('Maximum price');
 
 
+console.log()
 import makeUrl from './src/makeUrl.mjs';
 const link = makeUrl(location, isMonthly, months, checkIn, checkOut, priceMin, priceMax, amenities);
 console.log({ link });
