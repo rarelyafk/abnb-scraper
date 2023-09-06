@@ -11,7 +11,7 @@ import {
   getNeighborhood,
   getLocation,
 } from './src/location.mjs';
-import { monthly } from './src/dates.mjs';
+import { monthly, getCheckIn, getCheckOut } from './src/dates.mjs';
 import getABnBs from "./src/getABnBs.mjs";
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -25,9 +25,16 @@ console.log('If default provided, press Enter to select');
 // const neighborhood = await getNeighborhood();
 // const location = await getLocation(neighborhood, city, usState, country);
 
+// dates //////////////////////////////////////////////////////////////////////
 const { isMonthly, months, checkIn } = await monthly();
 console.log({ isMonthly, months, checkIn });
 
+if (!isMonthly) {
+  const checkIn = await getCheckIn();
+  console.log({ checkIn });
+  const checkOut = await getCheckOut(checkIn);
+  console.log({ checkOut });
+}
 
 
 
