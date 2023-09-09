@@ -12,28 +12,50 @@ const currentDay = moment().format('DD');
 const months = moment.months();
 
 // func ///////////////////////////////////////////////////////////////////////
-const getYear = async checkInYear => {
+/**
+  * @param {string} [checkInYear='']
+  * @returns {function: string}
+  */
+const getYear = async (checkInYear = '') => {
   const next5YearsArr = Array.from(
     { length: 5 },
-    (_, i) => (Number(currentYear || checkInYear) + i).toString()
+    (_, i) => (Number(checkInYear || currentYear) + i).toString()
   );
   return await acPrompt('Pick a year', next5YearsArr, checkInYear);
 };
 
-const makeMonthsArr = (year, checkInMonth = '') => {
-  if (checkInMonth)
-    return months.slice(months.indexOf(checkInMonth))
-  if (year === currentYear)
-    return months.slice(Number(currentMonth) - 1)
+/**
+  * @param {string} checkInYear
+  * @param {string} [checkInMonth='']
+  * @param {string} [checkOutYear='']
+  * @returns {string[]} months
+  */
+const makeMonthsArr = (checkInYear, checkInMonth = '', checkOutYear = '') => {
+  if (checkInYear === checkOutYear) {
+    const monthsAfterCheckIn = months.slice(months.indexOf(checkInMonth));
+    return monthsAfterCheckIn;
+  }
+
+  if ((!checkOutYear) && (checkInYear === currentYear)) {
+    const monthsLeftThisYear = months.slice(Number(currentMonth) - 1);
+    return monthsLeftThisYear;
+  }
+
   return months;
 };
 
-const getMonth = async (year, isMonthly = false, checkInMonth = '') => {
-  const monthsArr = makeMonthsArr(year, checkInMonth);
+/**
+  * @param {string} checkInYear
+  * @param {bool} [isMonthly=false]
+  * @param {string} [checkInMonth='']
+  * @param {string} [checkOutYear='']
+  */
+const getMonth = async (checkInYear, isMonthly = false, checkInMonth = '', checkOutYear = '') => {
+  const monthsArr = makeMonthsArr(checkInYear, checkInMonth, checkOutYear);
   const monthSel = await acPrompt(
-    isMonthly ? `Starting which month (of ${year})?` : 'Pick a month',
+    isMonthly ? `Starting which month (of ${checkInYear})?` : 'Pick a month',
     [...monthsArr],
-    checkInMonth,
+    (checkInYear === checkOutYear) ? checkInMonth : '',
   );
 
   // NOTE: not sure why this is an array of obj's sometimes...
@@ -83,26 +105,55 @@ const monthly = async () => {
   return {
     isMonthly,
     months,
-    checkIn,
+    checkIn
   };
 };
 
 // daily //////////////////////////////////////////////////////////////////////
-const makeDayArr = (y, m, d = 0) => {
-  const daysInMonth = moment(`${y || currentYear}-${m || currentMonth}`, 'YYYY-MM').daysInMonth();
+/**
+  * @param {string} y - year
+  * @param {string} m - month
+  * @param {number} [d=0] day
+  * @param {string} [ciy=''] - check-in year
+  * @param {string} [cim=''] - check-in month
+  * @returns {string[]} days
+  */
+const makeDayArr = (y, m, d = 0, ciy = '', cim = '') => {
+  // console.log({y,m,d,ciy,cim});
+  const daysInMonth = moment(
+    `${y || currentYear}-${m || currentMonth}`,
+    'YYYY-MM'
+  ).daysInMonth();
+
+
+  if ((y === currentYear) && (m == currentMonth)) {
+    const currentDayNum = Number(currentDay);
+
+    if (d) {
+      return Array.from(
+        { length: (daysInMonth - d) },
+        (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
+      );
+    }
+
+    return Array.from(
+      { length: (daysInMonth - currentDayNum) },
+      (_, i) => ( (currentDayNum + i).toString().padStart(2, '0') )
+    );
+  }
+
+  if (ciy && cim) {
+    if ((Number(y) > Number(ciy)) || (Number(m) > Number(cim)))
+      return Array.from(
+        { length: daysInMonth },
+        (_, i) => ( (i + 1).toString().padStart(2, '0') )
+      );
+  }
 
   if (d) {
     return Array.from(
       { length: (daysInMonth - d) },
-      (_, i) => ( (d + i).toString().padStart(2, '0') )
-    );
-  }
-
-  if ((y === currentYear) && (m == currentMonth)) {
-    const currentDayNum = Number(currentDay);
-    return Array.from(
-      { length: (daysInMonth - currentDayNum) },
-      (_, i) => ( (currentDayNum + i).toString().padStart(2, '0') )
+      (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
     );
   }
 
@@ -112,11 +163,19 @@ const makeDayArr = (y, m, d = 0) => {
   );
 };
 
-const getDay = async (year, month, d = null) => {
-  console.log({ d });
+/**
+  * @param {string} year
+  * @param {string} month
+  * @param {number|null} [d=null]
+  * @param {string} [checkInYear='']
+  * @param {string} [checkInMonth='']
+  * @returns {string} day
+  */
+const getDay = async (year, month, d = null, checkInYear = '', checkInMonth = '') => {
+  // console.log({ d });
 
-  const daysArr = makeDayArr(year, month, d);
-  console.log({ daysArr });
+  const daysArr = makeDayArr(year, month, d, checkInYear, checkInMonth);
+  // console.log({ daysArr });
   const dayUnformatted = await acPrompt('Pick a day', [...daysArr]);
 
   const day = dayUnformatted.padStart(2, '0');
@@ -145,11 +204,12 @@ const getCheckOut = async (checkIn) => {
   // const checkInMonth = (typeof (months[(Number(m) + 1)]) === 'string')
   //   ? months[(Number(m) + 1)]
   //   : months[(Number(m) + 1)]?.value;
-  console.log({ checkInMonth });
+
+  // console.log({ checkInMonth });
 
   const year = await getYear(y);
-  const month = await getMonth(year, false, checkInMonth);
-  const day = await getDay(year, month, (Number(d) + 1));
+  const month = await getMonth(y, false, checkInMonth, year);
+  const day = await getDay(year, month, (Number(d)), y, m);
 
   return `${year}-${month}-${day}`;
 };
