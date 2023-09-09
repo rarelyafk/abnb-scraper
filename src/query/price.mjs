@@ -1,4 +1,4 @@
-import { StringPrompt } from './prompts.mjs';
+import { StringPrompt } from '../prompts/index.mjs';
 
 const minPricePrompt = new StringPrompt({
   type: 'string',

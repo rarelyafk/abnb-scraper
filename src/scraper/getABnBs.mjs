@@ -1,5 +1,5 @@
-import getBrowserInstance from "./browserInstance.mjs";
-import makeUrl from './makeUrl.mjs';
+import getBrowserInstance from "../browserInstance/index.mjs";
+import makeUrl from '../query/makeUrl.mjs';
 import loadPage from './loadPage.mjs';
 
 const getABnBs = async (location, monthly, checkIn, checkOut, priceMin, priceMax) => {

@@ -1,7 +1,26 @@
 import moment from 'moment';
 
-const makeUrl = (location, isMonthly, months, checkIn, checkOut, priceMin, priceMax, amenities) => {
-  console.log('makeUrl: ', { location, isMonthly, months, checkIn, checkOut, priceMin, priceMax });
+const makeUrl = (
+  location,
+  isMonthly,
+  months,
+  checkIn,
+  checkOut,
+  priceMin,
+  priceMax,
+  amenities,
+) => {
+  console.log(
+    'makeUrl: ', {
+      location,
+      isMonthly,
+      months,
+      checkIn,
+      checkOut,
+      priceMin,
+      priceMax,
+    }
+  );
   
   let queryParams = '';
 

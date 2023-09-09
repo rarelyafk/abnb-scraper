@@ -8,14 +8,19 @@ import {
   getCity,
   getNeighborhood,
   getLocation,
-} from './src/location.mjs';
+} from './src/query/location.mjs';
 import {
   monthly,
   getCheckIn,
   getCheckOut,
-} from './src/dates.mjs';
-import getABnBs from "./src/getABnBs.mjs";
-
+} from './src/query/dates.mjs';
+import {
+  getMinPrice,
+  getMaxPrice,
+} from './src/query/price.mjs';
+import getAmenities from './src/query/amenities.mjs';
+import makeUrl from './src/query/makeUrl.mjs';
+import getABnBs from "./src/scraper/getABnBs.mjs";
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -31,31 +36,26 @@ const location = getLocation(neighborhood, city, usState, country);
 // dates //////////////////////////////////////////////////////////////////////
 const { isMonthly, months, monthlyCheckIn } = await monthly();
 // console.log({ isMonthly, months, checkIn });
-
 const checkIn = isMonthly ? monthlyCheckIn : await getCheckIn();
 // console.log({ checkIn });
-
 const checkOut = isMonthly ? '' : await getCheckOut(checkIn);
 // console.log({ checkOut });
 
 
-// amenities //////////////////////////////////////////////////////////////////
-console.log();
-import getAmenities from './src/amenities.mjs';
-const amenities = await getAmenities();
-
-
 // price //////////////////////////////////////////////////////////////////////
-import { getMinPrice, getMaxPrice } from './src/price.mjs';
-
 console.log();
 const priceMin = await getMinPrice();
 const priceMax = await getMaxPrice();
 
 
+// amenities //////////////////////////////////////////////////////////////////
+console.log();
+const amenities = await getAmenities();
+
+
 // link ///////////////////////////////////////////////////////////////////////
 console.log()
-import makeUrl from './src/makeUrl.mjs';
+// console.log({ monthly, checkIn, checkOut, priceMin, priceMax });
 const link = makeUrl(
   location,
   isMonthly,
@@ -69,6 +69,5 @@ const link = makeUrl(
 console.log({ link });
 
 
-// console.log({ monthly, checkIn, checkOut, priceMin, priceMax });
-
-await getABnBs(location, monthly, checkIn, checkOut, priceMin, priceMax);
+// getABnBs ///////////////////////////////////////////////////////////////////
+// await getABnBs(location, monthly, checkIn, checkOut, priceMin, priceMax);

@@ -3,10 +3,10 @@
 ///////////////////////////////////////////////////////////////////////////////
  
 // imports - local modules ////////////////////////////////////////////////////
-import { acPrompt, strPrompt } from './prompts.mjs';
-import countries from '../data/countries.mjs';
-import usStates from '../data/usStates.mjs';
-import cities from '../data/cities.mjs';
+import { acPrompt, strPrompt } from '../prompts/index.mjs';
+import countries from '../../data/countries.mjs';
+import usStates from '../../data/usStates.mjs';
+import cities from '../../data/cities.mjs';
 
 
 // location - country /////////////////////////////////////////////////////////
