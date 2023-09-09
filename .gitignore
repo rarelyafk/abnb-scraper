@@ -1,4 +1,7 @@
-# Logs
+# Package-lock
+package-lock.json
+
+# logs
 logs
 *.log
 npm-debug.log*
@@ -19,5 +22,5 @@ node_modules/
 .env
 .env.*
 
-#
+# result csvs
 csvs/*
