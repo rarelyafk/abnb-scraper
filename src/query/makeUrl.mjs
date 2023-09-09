@@ -70,7 +70,7 @@ const makeUrl = (
   
   queryParams += `&${encodeURIComponent('room_types[]')}=${encodeURIComponent('Entire home/apt')}`;
 
-  if (amenities) {
+  if (amenities.length) {
     for (const amenity of amenities)
       queryParams += `&${encodeURIComponent('amenities[]')}=${amenity}`;
   }
