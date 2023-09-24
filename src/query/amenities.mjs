@@ -17,13 +17,13 @@ const amenitiesArr = [
 ];
 
 const amenitiesPrompt = new MultiSelect({
-  message: 'Choose Amenities',
-  limit: 7,
+  name: 'amenitiesRes',
+  message: 'Choose Amenities (SPACE to select)',
   choices: amenitiesArr,
 });
 
 const getAmenities = async () => {
-  const amenities = await amenitiesPrompt.run()
+   return await amenitiesPrompt.run()
     .then(amenities => amenities)
     .catch(console.error);
 };
