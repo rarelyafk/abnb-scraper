@@ -1,15 +1,22 @@
-import moment from 'moment';
-import { acPrompt, Toggle } from '../prompts/index.mjs';
-
 ///////////////////////////////////////////////////////////////////////////////
 // dates //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+// imports ////////////////////////////////////////////////////////////////////
+import moment from 'moment';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+const pExec = promisify(exec);
+// imports - local ////////////////////////////////////////////////////////////
+import { acPrompt, Toggle } from '../prompts/index.mjs';
+
   
 // data ///////////////////////////////////////////////////////////////////////
 const currentYear = moment().format('YYYY');
 const currentMonth = moment().format('MM');
 const currentDay = moment().format('DD');
 const months = moment.months();
+
 
 // func ///////////////////////////////////////////////////////////////////////
 /**
@@ -19,9 +26,9 @@ const months = moment.months();
 const getYear = async (checkInYear = '') => {
   const next5YearsArr = Array.from(
     { length: 5 },
-    (_, i) => (Number(checkInYear || currentYear) + i).toString()
+    (_, i) => (Number(checkInYear || currentYear) + i).toString(),
   );
-  return await acPrompt('Pick a year', next5YearsArr, checkInYear);
+  return await acPrompt('Pick a year', next5YearsArr, (checkInYear || currentYear));
 };
 
 /**
@@ -110,6 +117,118 @@ const monthly = async () => {
 };
 
 // daily //////////////////////////////////////////////////////////////////////
+import inquirer from 'inquirer';
+import Prompt from 'inquirer-datepicker-prompt';
+inquirer.registerPrompt('datepicker', Prompt);
+
+const today = moment(new Date()).format('YYYY-MM-DD');
+const getCheckIn = async () => {
+  const date1 = await inquirer.prompt({
+    name: 'checkInDate',
+    type: 'datepicker',
+    message: 'Check-In',
+    format: ['yyyy', '-', 'mm', '-', 'dd'],
+    date: { min: today },
+  });
+  const { checkInDate } = date1;
+  const checkIn = moment(checkInDate).format('YYYY-MM-DD');
+  return { checkIn, checkInDate };
+};
+
+const getCheckOut = async (checkInDate) => {
+  const checkInPlus1 = moment(checkInDate).add(1, 'days').format('YYYY-MM-DD');
+  const date2 = await inquirer.prompt({
+    name: 'checkOutDate',
+    type: 'datepicker',
+    message: 'Check-Out',
+    format: ['yyyy', '-', 'mm', '-', 'dd'],
+    date: { min: checkInPlus1 },
+  });
+  const { checkOutDate } = date2;
+  const checkOut = moment(checkOutDate).format('YYYY-MM-DD');
+  return checkOut;
+};
+
+export {
+  monthly,
+  getCheckIn,
+  getCheckOut,
+};
+
+
+// const getCheckIn = async () => {
+//   console.log();
+//   console.log('Check-In Date:');
+
+//   const year = await getYear();
+//   const month = await getMonth(year, false);
+//   // const day = await getDay(year, month);
+
+//   const zen_base = "zenity --calendar --text='Check-In' --date-format='%Y-%m-%d'";
+//   const zen_y = `--year='${year}'`;
+//   const zen_m = `--month='${Number(month)}'`;
+//   const zen_d = ((year === currentYear) && (month === currentMonth))
+//     ? `--day='${currentDay}'`
+//     : "--day='01'";
+//   const zen_cmd = `${zen_base} ${zen_y} ${zen_m} ${zen_d}`;
+
+//   const { stdout, stderr } = await pExec(zen_cmd);
+//   if (stderr) {
+//     console.error(`stderr: ${stderr}`);
+//     return;
+//   }
+
+//   const date = stdout.trim();
+//   return date;
+// };
+
+// const getCheckOut = async (checkIn) => {
+//   console.log();
+//   console.log('Check-Out Date:');
+
+//   const [y, m, d] = checkIn.split('-');
+
+//   const checkInMonth = months[(Number(m) - 1)];
+//   // NOTE: sending array copies to enquire now, no need for ternary...
+//   // const checkInMonth = (typeof (months[(Number(m) + 1)]) === 'string')
+//   //   ? months[(Number(m) + 1)]
+//   //   : months[(Number(m) + 1)]?.value;
+
+//   // console.log({ checkInMonth });
+
+//   // const year = await getYear(y);
+//   // const month = await getMonth(y, false, checkInMonth, year);
+//   // const day = await getDay(year, month, (Number(d)), y, m);
+
+//   const zen_base = "zenity --calendar --text='Check-Out' --date-format='%Y-%m-%d'";
+//   const zen_y = `--year='${y}'`;
+//   const zen_m = `--month='${Number(m)}'`;
+//   const zen_d = (Number(d) + 1).toString().padStart(2, '0');
+//   // const zen_d = ((year === currentYear) && (month === currentMonth))
+//   //   ? `--day='${currentDay}'`
+//   //   : "--day='01'";
+//   const zen_cmd = `${zen_base} ${zen_y} ${zen_m} ${zen_d}`;
+
+//   const { stdout, stderr } = await pExec(zen_cmd);
+//   if (stderr) {
+//     console.error(`stderr: ${stderr}`);
+//     return;
+//   }
+
+//   const date = stdout.trim();
+
+//   return date;
+//   // return `${year}-${month}-${day}`;
+// };
+
+
+// cal -d 'YYYY-MM'
+// cal -d '2024-02'
+// cal -d '2024-02' | awk 'NR > 2'
+
+// zenity --forms --text='start and end' --add-calendar='start' --add-calendar='end' --forms-date-format='%Y-%m-%d'
+// zenity --calendar --text='check-in' --date-format='%Y-%m-%d' --year='2023' --month='9' --day='17'
+
 /**
   * @param {string} y - year
   * @param {string} m - month
@@ -118,50 +237,50 @@ const monthly = async () => {
   * @param {string} [cim=''] - check-in month
   * @returns {string[]} days
   */
-const makeDayArr = (y, m, d = 0, ciy = '', cim = '') => {
-  // console.log({y,m,d,ciy,cim});
-  const daysInMonth = moment(
-    `${y || currentYear}-${m || currentMonth}`,
-    'YYYY-MM'
-  ).daysInMonth();
+// const makeDayArr = (y, m, d = 0, ciy = '', cim = '') => {
+//   // console.log({y,m,d,ciy,cim});
+//   const daysInMonth = moment(
+//     `${y || currentYear}-${m || currentMonth}`,
+//     'YYYY-MM'
+//   ).daysInMonth();
 
 
-  if ((y === currentYear) && (m == currentMonth)) {
-    const currentDayNum = Number(currentDay);
+//   if ((y === currentYear) && (m == currentMonth)) {
+//     const currentDayNum = Number(currentDay);
 
-    if (d) {
-      return Array.from(
-        { length: (daysInMonth - d) },
-        (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
-      );
-    }
+//     if (d) {
+//       return Array.from(
+//         { length: (daysInMonth - d) },
+//         (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
+//       );
+//     }
 
-    return Array.from(
-      { length: (daysInMonth - currentDayNum) },
-      (_, i) => ( (currentDayNum + i).toString().padStart(2, '0') )
-    );
-  }
+//     return Array.from(
+//       { length: (daysInMonth - currentDayNum) },
+//       (_, i) => ( (currentDayNum + i).toString().padStart(2, '0') )
+//     );
+//   }
 
-  if (ciy && cim) {
-    if ((Number(y) > Number(ciy)) || (Number(m) > Number(cim)))
-      return Array.from(
-        { length: daysInMonth },
-        (_, i) => ( (i + 1).toString().padStart(2, '0') )
-      );
-  }
+//   if (ciy && cim) {
+//     if ((Number(y) > Number(ciy)) || (Number(m) > Number(cim)))
+//       return Array.from(
+//         { length: daysInMonth },
+//         (_, i) => ( (i + 1).toString().padStart(2, '0') )
+//       );
+//   }
 
-  if (d) {
-    return Array.from(
-      { length: (daysInMonth - d) },
-      (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
-    );
-  }
+//   if (d) {
+//     return Array.from(
+//       { length: (daysInMonth - d) },
+//       (_, i) => ( (d + i + 1).toString().padStart(2, '0') )
+//     );
+//   }
 
-  return Array.from(
-    { length: daysInMonth },
-    (_, i) => ( (i + 1).toString().padStart(2, '0') )
-  );
-};
+//   return Array.from(
+//     { length: daysInMonth },
+//     (_, i) => ( (i + 1).toString().padStart(2, '0') )
+//   );
+// };
 
 /**
   * @param {string} year
@@ -171,51 +290,13 @@ const makeDayArr = (y, m, d = 0, ciy = '', cim = '') => {
   * @param {string} [checkInMonth='']
   * @returns {string} day
   */
-const getDay = async (year, month, d = null, checkInYear = '', checkInMonth = '') => {
-  // console.log({ d });
+// const getDay = async (year, month, d = null, checkInYear = '', checkInMonth = '') => {
+//   // console.log({ d });
 
-  const daysArr = makeDayArr(year, month, d, checkInYear, checkInMonth);
-  // console.log({ daysArr });
-  const dayUnformatted = await acPrompt('Pick a day', [...daysArr]);
+//   const daysArr = makeDayArr(year, month, d, checkInYear, checkInMonth);
+//   // console.log({ daysArr });
+//   const dayUnformatted = await acPrompt('Pick a day', [...daysArr]);
 
-  const day = dayUnformatted.padStart(2, '0');
-  return day;
-};
-
-const getCheckIn = async () => {
-  console.log();
-  console.log('Check-In Date:');
-
-  const year = await getYear();
-  const month = await getMonth(year, false);
-  const day = await getDay(year, month);
-
-  return `${year}-${month}-${day}`;
-};
-
-const getCheckOut = async (checkIn) => {
-  console.log();
-  console.log('Check-Out Date:');
-
-  const [y, m, d] = checkIn.split('-');
-
-  const checkInMonth = months[(Number(m) - 1)];
-  // NOTE: sending array copies to enquire now, no need for ternary...
-  // const checkInMonth = (typeof (months[(Number(m) + 1)]) === 'string')
-  //   ? months[(Number(m) + 1)]
-  //   : months[(Number(m) + 1)]?.value;
-
-  // console.log({ checkInMonth });
-
-  const year = await getYear(y);
-  const month = await getMonth(y, false, checkInMonth, year);
-  const day = await getDay(year, month, (Number(d)), y, m);
-
-  return `${year}-${month}-${day}`;
-};
-
-export {
-  monthly,
-  getCheckIn,
-  getCheckOut,
-};
+//   const day = dayUnformatted.padStart(2, '0');
+//   return day;
+// };
