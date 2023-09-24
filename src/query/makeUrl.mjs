@@ -10,17 +10,18 @@ const makeUrl = (
   priceMax,
   amenities,
 ) => {
-  console.log(
-    'makeUrl: ', {
-      location,
-      isMonthly,
-      months,
-      checkIn,
-      checkOut,
-      priceMin,
-      priceMax,
-    }
-  );
+  // console.log(
+  //   'makeUrl: ', {
+  //     location,
+  //     isMonthly,
+  //     months,
+  //     checkIn,
+  //     checkOut,
+  //     priceMin,
+  //     priceMax,
+  //     amenities,
+  //   }
+  // );
   
   let queryParams = '';
 
@@ -70,7 +71,7 @@ const makeUrl = (
   
   queryParams += `&${encodeURIComponent('room_types[]')}=${encodeURIComponent('Entire home/apt')}`;
 
-  if (amenities.length) {
+  if (amenities?.length) {
     for (const amenity of amenities)
       queryParams += `&${encodeURIComponent('amenities[]')}=${amenity}`;
   }
