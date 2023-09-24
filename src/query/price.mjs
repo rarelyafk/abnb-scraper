@@ -1,29 +1,32 @@
 import { StringPrompt } from '../prompts/index.mjs';
 
+const validate = str => {
+  if (!str)
+    return true;
+  if (isNaN(str) || isNaN(parseFloat(str)))
+    return minPricePrompt.styles.danger('numbers only please');
+
+  const num = Number(str);
+  if (num < 0)
+    return minPricePrompt.styles.danger('numbers less than 0 not allowed...');
+  if (num > 9999)
+    return minPricePrompt.styles.danger('numbers more than 9999 not allowed...');
+
+  return true;
+};
+
 const minPricePrompt = new StringPrompt({
   type: 'string',
   name: 'minPrice',
   message: 'Minimum Price',
-  validate: (value) => {
-    if (Number(value) <= 0)
-      return prompt.styles.danger('numbers less than 0 not allowed...');
-    if (Number(value) >= 9999)
-      return prompt.styles.danger('numbers more than 9999 not allowed...');
-    return true;
-  },
+  validate,
 });
 
 const maxPricePrompt = new StringPrompt({
   type: 'string',
   name: 'maxPrice',
   message: 'Maximum Price',
-  validate: (value) => {
-    if (Number(value) <= 0)
-      return prompt.styles.danger('numbers less than 0 not allowed...');
-    if (Number(value) >= 9999)
-      return prompt.styles.danger('numbers more than 9999 not allowed...');
-    return true;
-  },
+  validate,
 });
 
 const getMinPrice = async () => (
