@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "type": "module",
   "dependencies": {
+    "country-state-city": "^3.2.1",
     "enquirer": "^2.4.1",
+    "inquirer": "^9.2.11",
+    "inquirer-datepicker-prompt": "^0.4.3",
     "moment": "^2.29.4",
     "puppeteer": "^19.7.2",
     "puppeteer-extra": "^3.3.4",
