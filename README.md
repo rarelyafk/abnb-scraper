@@ -3,11 +3,10 @@ A scraper for AirBnB use NodeJS+Puppeteer
 ## SETUP
 ```
 npm i
-chmod u+x index.js
 ```
 ## USAGE
 ```
-./index.js
+npm start
 ```
 ## OUTPUT
 csv files are outputted to "csvs" dir, where they can be sorted, etc.
