@@ -1,36 +1,58 @@
 ///////////////////////////////////////////////////////////////////////////////
 // location ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
- 
+// imports //////////////////////////////////////////////////////////////////// 
+import { Country, State, City } from 'country-state-city';
 // imports - local modules ////////////////////////////////////////////////////
 import { acPrompt, strPrompt } from '../prompts/index.mjs';
-import countries from '../../data/countries.mjs';
-import usStates from '../../data/usStates.mjs';
-import cities from '../../data/cities.mjs';
+// import countries from '../../data/countries.mjs';
+// import usStates from '../../data/usStates.mjs';
+// import cities from '../../data/cities.mjs';
 
 
 // location - country /////////////////////////////////////////////////////////
 const getCountry = async () => {
-  const countriesArr = countries.map(({ name }) => name);
-  return await acPrompt('Pick country', countriesArr, 'United States');
+  const countriesArr = Country.getAllCountries().map(({ isoCode }) => isoCode);
+  const countryChoice = await acPrompt('Pick country', countriesArr, 'US');
+  const { name: country } = Country.getAllCountries().find(country => (
+    country.isoCode === countryChoice
+  ));
+  return country;
 };
 
-// location - usState /////////////////////////////////////////////////////////
-const getUSState = async () => {
-  const usStatesArr = usStates.map(({ name }) => name).sort();
-  const usState = await acPrompt('Pick a US State', usStatesArr);
-  return `${usState}--`
+// location - state ///////////////////////////////////////////////////////////
+const getState = async (countryName) => {
+  const { isoCode } = Country.getAllCountries().find(country => (
+    country.name === countryName
+  ));
+  const states = State.getStatesOfCountry(isoCode);
+  if (!states) return '';
+
+  const statesArr = states
+    .map(({ isoCode }) => isoCode)
+    .filter(code => (code.length === 2));
+  const stateChoice = await acPrompt('Pick a State', statesArr);
+  const { name: state } = states.find(state => (
+    state.isoCode === stateChoice
+  ));
+  return `${state}--`
 }
 
 // location - city ////////////////////////////////////////////////////////////
 
-const getCity = async country => {
-  const countryCode = countries.find(({ name }) => (name === country)).code;
-  const citiesArr = cities
-    .filter(({ country: pickedCountry }) => pickedCountry === countryCode)
-    .map(({ name }) => name)
-    .sort();
-  return await acPrompt(`Pick a city in ${country}`, citiesArr);
+const getCity = async (countryName, state) => {
+  const stateName = state.slice(0, -2);
+  const { isoCode: countryCode } = Country.getAllCountries().find(country => (
+    country.name === countryName
+  ));
+  const { isoCode: stateCode } = State.getStatesOfCountry(countryCode)
+    .find(state => (state.name === stateName));
+  const citiesArr = City.getCitiesOfState(countryCode, stateCode);
+
+  return await acPrompt(
+    `Pick a city in ${stateName ? `${stateName} of ` : ''}${countryName}`,
+    citiesArr,
+  );
 };
 
 // location - neighborhood ////////////////////////////////////////////////////
@@ -44,18 +66,18 @@ const getNeighborhood = async () => {
  * Constructs location string
  * @param {string} neighborhood
  * @param {string} city
- * @param {string} usState
+ * @param {string} state
  * @param {string} country
  * @returns {string} location (hyphenated)
  */
-const getLocation = (neighborhood, city, usState = '', country) => (
-  `${neighborhood}${city}--${usState}${country}`
+const getLocation = (neighborhood, city, state = '', country) => (
+  `${neighborhood}${city}--${state}${country}`
     .replaceAll(' ', '-')
 );
 
 export {
   getCountry,
-  getUSState,
+  getState,
   getCity,
   getNeighborhood,
   getLocation,
