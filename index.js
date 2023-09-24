@@ -4,7 +4,7 @@
  
 import {
   getCountry,
-  getUSState,
+  getState,
   getCity,
   getNeighborhood,
   getLocation,
@@ -25,38 +25,52 @@ import getABnBs from "./src/scraper/getABnBs.mjs";
 
 
 console.log('If default provided, press Enter to select');
+console.log();
+
+const yelLog = str => console.log("\x1b[33m%s\x1b[0m", str);
+
 
 // location ///////////////////////////////////////////////////////////////////
+yelLog('LOCATION');
 const country = await getCountry();
-const usState = (country === 'United States') ? await getUSState() : '';
-const city = await getCity(country);
+// console.log({ country });
+const state = await getState(country);
+// console.log({ state });
+const city = await getCity(country, state);
+// console.log({ city });
 const neighborhood = await getNeighborhood();
-const location = getLocation(neighborhood, city, usState, country);
+// console.log({ neighborhood });
+const location = getLocation(neighborhood, city, state, country);
+// console.log({ location });
+
 
 // dates //////////////////////////////////////////////////////////////////////
-const { isMonthly, months, monthlyCheckIn } = await monthly();
-// console.log({ isMonthly, months, checkIn });
-const checkIn = isMonthly ? monthlyCheckIn : await getCheckIn();
+yelLog('DATES');
+const { isMonthly, months, checkIn: monthlyCheckIn } = await monthly();
+// console.log({ isMonthly, months, monthlyCheckIn });
+const { checkIn, checkInDate } = isMonthly
+  ? { monthlyCheckIn }
+  : await getCheckIn();
 // console.log({ checkIn });
-const checkOut = isMonthly ? '' : await getCheckOut(checkIn);
+const checkOut = isMonthly ? '' : await getCheckOut(checkInDate);
 // console.log({ checkOut });
 
 
 // price //////////////////////////////////////////////////////////////////////
-console.log();
+yelLog('PRICE');
 const priceMin = await getMinPrice();
 const priceMax = await getMaxPrice();
 
 
 // amenities //////////////////////////////////////////////////////////////////
-console.log();
+yelLog('AMENITIES');
 const amenities = await getAmenities();
+// console.log({ amenities });
 
 
 // link ///////////////////////////////////////////////////////////////////////
 console.log()
-// console.log({ monthly, checkIn, checkOut, priceMin, priceMax });
-const link = makeUrl(
+const url = makeUrl(
   location,
   isMonthly,
   months,
@@ -66,8 +80,8 @@ const link = makeUrl(
   priceMax,
   amenities,
 );
-console.log({ link });
+console.log({ url });
 
 
 // getABnBs ///////////////////////////////////////////////////////////////////
-// await getABnBs(location, monthly, checkIn, checkOut, priceMin, priceMax);
+await getABnBs(url, location);
