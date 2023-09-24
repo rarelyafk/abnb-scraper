@@ -12,10 +12,12 @@ import { acPrompt, strPrompt } from '../prompts/index.mjs';
 
 // location - country /////////////////////////////////////////////////////////
 const getCountry = async () => {
-  const countriesArr = Country.getAllCountries().map(({ isoCode }) => isoCode);
-  const countryChoice = await acPrompt('Pick country', countriesArr, 'US');
+  const countriesArr = Country.getAllCountries().map(({ name, isoCode }) => (
+    `${name} [${isoCode}]`
+  ));
+  const countryChoice = await acPrompt('Pick country', countriesArr, 'United States [US]');
   const { name: country } = Country.getAllCountries().find(country => (
-    country.isoCode === countryChoice
+    country.isoCode === countryChoice.match(/\[(.*)\]/)[1]
   ));
   return country;
 };
@@ -29,11 +31,11 @@ const getState = async (countryName) => {
   if (!states) return '';
 
   const statesArr = states
-    .map(({ isoCode }) => isoCode)
-    .filter(code => (code.length === 2));
+    .filter(({ isoCode }) => (isoCode.length === 2))
+    .map(({ name, isoCode }) => `${name} [${isoCode}]`);
   const stateChoice = await acPrompt('Pick a State', statesArr);
   const { name: state } = states.find(state => (
-    state.isoCode === stateChoice
+    state.isoCode === stateChoice.match(/\[(.*)\]/)[1]
   ));
   return `${state}--`
 }
