@@ -4,8 +4,6 @@ import parseRooms from './parseRooms.mjs';
 
 const loadPage = async (page, location) => {
   console.log('  loading page');
-  // const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
-  // await delay(15000);
 
   await page.waitForSelector('#site-content');
 
