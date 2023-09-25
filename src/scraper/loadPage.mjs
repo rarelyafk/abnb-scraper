@@ -5,7 +5,7 @@ import parseRooms from './parseRooms.mjs';
 const loadPage = async (page, location) => {
   console.log('  loading page');
 
-  await page.waitForSelector('#site-content');
+  await page.waitForSelector('#site-content'); // main content
 
   await scrollPage(page);
 
@@ -14,7 +14,7 @@ const loadPage = async (page, location) => {
   await page.waitForSelector('.cn6uggc');     // navigation bar
   // await page.waitForSelector('_ar9stc');      // footer
 
-  const items = await page.$$('#site-content [itemprop="itemListElement"]');
+  const items = await page.$$('#site-content [itemprop="itemListElement"]'); // rooms list as items
   await parseRooms(items, location);
 };
 
