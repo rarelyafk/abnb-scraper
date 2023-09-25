@@ -1,4 +1,4 @@
-import getBrowserInstance from "../browserInstance/index.mjs";
+import getBrowserInstance from './browserInstance/index.mjs';
 import loadPage from './loadPage.mjs';
 
 const getABnBs = async (url, location) => {

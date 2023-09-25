@@ -1,15 +1,17 @@
-import fs from 'fs';
+import { existsSync, appendFileSync } from 'fs';
 
 const parseRooms = async (items, location) => {
   console.log('  parsing rooms');
   const fileName = location.replaceAll(',', '').replaceAll(' ', '_');
   const filePath = `./csvs/${fileName}.csv`;
-  if (!(fs.existsSync(filePath)))
-    fs.appendFile(
-      filePath,
-      `reviews;stars;price;room_type;neighborhood;link\n`,
-      err => { if (err) throw err },
-    );
+  const csvAppend = line => {
+    const errFunc = err => { if (err) throw err; };
+    appendFileSync(filePath, line, errFunc);
+  };
+  if (!(existsSync(filePath))) {
+    csvAppend(`sep=;\n`);
+    csvAppend(`id;reviews;stars;price;room_type;neighborhood;link\n`);
+  }
 
   let itemCnt = 0;
   for (const item of items) {
@@ -35,16 +37,9 @@ const parseRooms = async (items, location) => {
         const neighborhood = neighborhoodText.split(' in ')[1];
         const id = roomUrl.match(/rooms\/(.*)\?/)[1];
 
-        // const line = `${numOfReviews};${stars};${price.slice(0,-1)};${roomType};${neighborhood};=HYPERLINK("${roomUrl}","${id}") \n`;
-        const line = `${numOfReviews};${stars};${price.slice(0,-1)};${roomType};${neighborhood};${roomUrl}\n`;
-        // console.log(line);
-        // console.log({ numOfReviews, stars, price, roomType, neighborhood, id, roomUrl, url, line });
+        const line = `${id};${numOfReviews};${stars};${price.slice(0,-1)};${roomType};${neighborhood};${roomUrl}\n`;
 
-        fs.appendFile(
-          `./csvs/${fileName}.csv`,
-          line,
-          err => { if (err) throw err },
-        );
+        csvAppend(line);
         itemCnt++;
       }
     }
