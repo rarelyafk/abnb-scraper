@@ -17,10 +17,7 @@ const getABnBs = async (url, location) => {
   await waitAndClick('.canm9xs');              // display total price (width2)
 
   let cnt = 1;
-  console.log(`Page ${cnt}`);
-  await loadPage(page, location);
-
-  const isNextPage = await page.$('[aria-label="Next"][disabled]') === null;
+  const isNextPage = (await page.$('[aria-label="Next"][disabled]')) === null;
   while (isNextPage) {
     console.log(`Page ${cnt}`);
     await loadPage(page, location);
