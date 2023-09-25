@@ -2,12 +2,15 @@ import { existsSync, appendFileSync } from 'fs';
 
 const parseRooms = async (items, location) => {
   console.log('  parsing rooms');
+
   const fileName = location.replaceAll(',', '').replaceAll(' ', '_');
   const filePath = `./csvs/${fileName}.csv`;
+
   const csvAppend = line => {
     const errFunc = err => { if (err) throw err; };
     appendFileSync(filePath, line, errFunc);
   };
+
   if (!(existsSync(filePath))) {
     csvAppend(`sep=;\n`);
     csvAppend(`id;reviews;stars;price;room_type;neighborhood;link\n`);
