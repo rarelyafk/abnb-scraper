@@ -11,7 +11,6 @@ const getBrowserInstance = async () => {
     executablePath: executablePath(),
   });
 
-  // const page = await browser.newPage();
   const page = (await browser.pages())[0];
   await page.setViewport({
     width: 1600,
