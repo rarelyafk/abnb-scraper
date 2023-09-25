@@ -37,7 +37,7 @@ const getMinPrice = async () => (
 
 const getMaxPrice = async () => (
   await maxPricePrompt.run()
-    .then(minPrice => minPrice)
+    .then(maxPrice => maxPrice)
     .catch(console.error)
 );
 
