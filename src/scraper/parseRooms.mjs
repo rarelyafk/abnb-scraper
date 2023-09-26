@@ -36,8 +36,8 @@ const parseRooms = async (items, location) => {
       const neighborhoodText = await getVal(neighborhoodJSH);
 
       if (review !== 'New') {
-        const stars = Array.from(review.match(/(.*) /))[1];
         const numOfReviews = Array.from(review.match(/\((.*)\)/))[1];
+        const stars = Array.from(review.match(/(.*) /))[1];
         const price = priceVal.slice(0, -1);
         const roomType = neighborhoodText.split(' in ')[0];
         const neighborhood = neighborhoodText.split(' in ')[1];
