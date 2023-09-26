@@ -13,34 +13,37 @@ const parseRooms = async (items, location) => {
 
   if (!(existsSync(filePath))) {
     csvAppend(`sep=;\n`);
-    csvAppend(`id;reviews;stars;price;room_type;neighborhood;link\n`);
+    csvAppend(`reviews;stars;price;room_type;neighborhood;link;id\n`);
+  }
+
+  const getVal = async (JSH, prop = 'innerText') => {
+    const propVal = await JSH.getProperty(prop);
+    return await propVal.jsonValue();
   }
 
   let itemCnt = 0;
   for (const item of items) {
-    const priceJSHandle = await item.$('._1y74zjx');
-    const reviewJSHandle = await item.$('.r1dxllyb');
-    const roomJSHandle = await item.$('.rfexzly');
-    const neighborhoodJSHandle = await item.$('.t1jojoys');
+    // JSH = JSHandle
+    const priceJSH = await item.$('._1y74zjx');
+    const reviewJSH = await item.$('.r1dxllyb');
+    const roomJSH = await item.$('.rfexzly');
+    const neighborhoodJSH = await item.$('.t1jojoys');
 
-    if (priceJSHandle && reviewJSHandle && roomJSHandle && neighborhoodJSHandle) {
-      const priceProperty = await priceJSHandle.getProperty('innerText');
-      const price = await priceProperty.jsonValue();
-      const roomProperty = await roomJSHandle.getProperty('href');
-      const roomUrl = await roomProperty.jsonValue();
-      const reviewProperty = await reviewJSHandle.getProperty('innerText');
-      const review = await reviewProperty.jsonValue();
-      const neighborhoodProperty = await neighborhoodJSHandle.getProperty('innerText');
-      const neighborhoodText = await neighborhoodProperty.jsonValue();
+    if (priceJSH && reviewJSH && roomJSH && neighborhoodJSH) {
+      const priceVal = await getVal(priceJSH);
+      const roomUrl = await getVal(roomJSH, 'href');
+      const review = await getVal(reviewJSH);
+      const neighborhoodText = await getVal(neighborhoodJSH);
 
       if (review !== 'New') {
         const stars = Array.from(review.match(/(.*) /))[1];
         const numOfReviews = Array.from(review.match(/\((.*)\)/))[1];
+        const price = priceVal.slice(0, -1);
         const roomType = neighborhoodText.split(' in ')[0];
         const neighborhood = neighborhoodText.split(' in ')[1];
         const id = roomUrl.match(/rooms\/(.*)\?/)[1];
 
-        const line = `${id};${numOfReviews};${stars};${price.slice(0,-1)};${roomType};${neighborhood};${roomUrl}\n`;
+        const line = `${numOfReviews};${stars};${price};${roomType};${neighborhood};${roomUrl};${id}\n`;
 
         csvAppend(line);
         itemCnt++;
