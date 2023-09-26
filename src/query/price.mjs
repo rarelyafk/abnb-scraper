@@ -18,14 +18,14 @@ const validate = str => {
 const minPricePrompt = new StringPrompt({
   type: 'string',
   name: 'minPrice',
-  message: 'Minimum Price',
+  message: 'Minimum Total Price',
   validate,
 });
 
 const maxPricePrompt = new StringPrompt({
   type: 'string',
   name: 'maxPrice',
-  message: 'Maximum Price',
+  message: 'Maximum Total Price',
   validate,
 });
 
