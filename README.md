@@ -1,8 +1,10 @@
 # abnb-scraper
 A scraper for AirBnB - built with NodeJS+Puppeteer
 ## SETUP
+__requires Node.js__
+https://nodejs.org/en/download/current
 ```
-npm i
+npm install
 ```
 ## USAGE
 ```
