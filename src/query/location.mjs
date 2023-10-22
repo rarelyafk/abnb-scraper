@@ -43,13 +43,16 @@ const getState = async (countryName) => {
 // location - city ////////////////////////////////////////////////////////////
 
 const getCity = async (countryName, state) => {
-  const stateName = state.slice(0, -2);
-  const { isoCode: countryCode } = Country.getAllCountries().find(country => (
-    country.name === countryName
-  ));
-  const { isoCode: stateCode } = State.getStatesOfCountry(countryCode)
-    .find(state => (state.name === stateName));
-  const citiesArr = City.getCitiesOfState(countryCode, stateCode);
+  const stateName = state ? state.slice(0, -2) : '';
+  const { isoCode: countryCode } = Country.getAllCountries()
+    .find(country => country.name === countryName);
+  const { isoCode: stateCode } = state
+    ? State.getStatesOfCountry(countryCode)
+      .find(state => (state.name === stateName))
+    : { isoCode: '' };
+  const citiesArr = state
+    ? City.getCitiesOfState(countryCode, stateCode)
+    : City.getCitiesOfCountry(countryCode);
 
   return await acPrompt(
     `Pick a city in ${stateName ? `${stateName} of ` : ''}${countryName}`,
@@ -72,7 +75,7 @@ const getNeighborhood = async () => {
  * @param {string} country
  * @returns {string} location (hyphenated)
  */
-const getLocation = (neighborhood, city, state = '', country) => (
+const getLocation = (neighborhood = '', city, state = '', country) => (
   `${neighborhood}${city}--${state}${country}`
     .replaceAll(' ', '-')
 );
