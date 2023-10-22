@@ -27,7 +27,7 @@ import getABnBs from "./src/scraper/getABnBs.mjs";
 
 // setup //////////////////////////////////////////////////////////////////////
 if (!existsSync('./csvs'))
-  mkdirSync('./csvs')
+  mkdirSync('./csvs');
 
 console.log('If default provided, press Enter to select');
 console.log();
@@ -38,7 +38,10 @@ const yelLog = str => console.log("\x1b[33m%s\x1b[0m", str);
 // location ///////////////////////////////////////////////////////////////////
 yelLog('LOCATION');
 const country = await getCountry();
-const state = await getState(country);
+const validCountriesWithStates = ['United States', 'India'];
+const state = (validCountriesWithStates.includes(country))
+  ? await getState(country)
+  : '';
 const city = await getCity(country, state);
 const neighborhood = await getNeighborhood();
 const location = getLocation(neighborhood, city, state, country);
