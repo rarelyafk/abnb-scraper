@@ -60,7 +60,7 @@ const makeMonthsArr = (checkInYear, checkInMonth = '', checkOutYear = '') => {
 const getMonth = async (checkInYear, isMonthly = false, checkInMonth = '', checkOutYear = '') => {
   const monthsArr = makeMonthsArr(checkInYear, checkInMonth, checkOutYear);
   const monthSel = await acPrompt(
-    isMonthly ? `Starting which month (of ${checkInYear})?` : 'Pick a month',
+    `Starting which month (of ${checkInYear})`,
     [...monthsArr],
     (checkInYear === checkOutYear) ? checkInMonth : '',
   );
